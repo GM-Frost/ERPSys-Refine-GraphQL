@@ -21,11 +21,14 @@ export const authProvider: AuthBindings = {
           variables: { email },
           //pass the email to see if the user exists and if so, return the access token
           rawQuery: `
-            mutation login($email:String!){
-              login(loginInput: {email: $email}){
-                accessToken
-              }
-            }`,
+          mutation Login($email: String!) {
+            login(loginInput: {
+              email: $email
+            }) {
+              accessToken,
+            }
+          }
+        `,
         },
       });
 
@@ -42,7 +45,7 @@ export const authProvider: AuthBindings = {
       return {
         success: false,
         error: {
-          message: "message" in error ? error.message : "Login Failed",
+          message: "message" in error ? error.message : "Login failed",
           name: "name" in error ? error.name : "Invalid email or password",
         },
       };
@@ -51,6 +54,7 @@ export const authProvider: AuthBindings = {
   //removing the access token from localStorage
   logout: async () => {
     localStorage.removeItem("access_token");
+
     return {
       success: true,
       redirectTo: "/login",
@@ -77,7 +81,13 @@ export const authProvider: AuthBindings = {
         method: "post",
         headers: {},
         meta: {
-          rawQuery: `query Me{ me { name}}`,
+          rawQuery: `
+                    query Me {
+                        me {
+                          name
+                        }
+                      }
+                `,
         },
       });
       //if the user is authenticated, redirect to the home page
@@ -106,7 +116,17 @@ export const authProvider: AuthBindings = {
         headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {},
         meta: {
           //get the userinformation such as name, email, etc
-          rawQuery: `query Me{me{id name email phone jobTitle timezone avatarUrl}}`,
+          rawQuery: ` query Me {
+            me {
+                id,
+                name,
+                email,
+                phone,
+                jobTitle,
+                timezone
+                avatarUrl
+            }
+          }`,
         },
       });
       return data.me;

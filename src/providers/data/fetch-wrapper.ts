@@ -7,7 +7,7 @@ type Error = {
 //create custom fetch wrapper to handle errors
 //code reusability
 const customFetch = async (url: string, options: RequestInit) => {
-  const accessToken = localStorage.getItem("accessToken"); // get token from local storage
+  const accessToken = localStorage.getItem("access_token"); // get token from local storage
   const headers = options.headers as Record<string, string>; // get headers from options
 
   return await fetch(url, {
@@ -19,6 +19,21 @@ const customFetch = async (url: string, options: RequestInit) => {
       "Apollo-Require-Preflight": "true", //handing CORS Issues with apollo (Graph QL client making request with GraphQL Server)
     },
   });
+};
+
+//CUSTOM FETCH WRAPPER
+export const fetchWrapper = async (url: string, options: RequestInit) => {
+  const response = await customFetch(url, options);
+  //cloning the response so that when response is first consumed, it is not available for the second time. To make it available for the second time, we clone it
+  const responseClone = response.clone();
+  const body = await responseClone.json();
+  const error = getGraphQLErrors(body);
+
+  if (error) {
+    throw error;
+  }
+
+  return response;
 };
 
 const getGraphQLErrors = (
@@ -41,19 +56,6 @@ const getGraphQLErrors = (
       statusCode: code || 500,
     };
   }
+
   return null;
-};
-
-//CUSTOM FETCH WRAPPER
-export const fetchWrapper = async (url: string, options: RequestInit) => {
-  const response = await customFetch(url, options);
-  //cloning the response so that when response is first consumed, it is not available for the second time. To make it available for the second time, we clone it
-  const responseClone = response.clone();
-  const body = await responseClone.json();
-
-  const error = getGraphQLErrors(body);
-
-  if (error) {
-    throw error;
-  }
 };

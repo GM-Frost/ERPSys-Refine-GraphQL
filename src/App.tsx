@@ -14,7 +14,8 @@ import { App as AntdApp } from "antd";
 import { useTranslation } from "react-i18next";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 
-import { dataProvider, liveProvider } from "./providers";
+import { authProvider, dataProvider, liveProvider } from "./providers";
+import { Home, ForgotPassword, Login, Register } from "./pages";
 
 function App() {
   const { t, i18n } = useTranslation();
@@ -36,7 +37,7 @@ function App() {
               liveProvider={liveProvider}
               notificationProvider={useNotificationProvider}
               routerProvider={routerBindings}
-              // authProvider={authProvider}
+              authProvider={authProvider}
               i18nProvider={i18nProvider}
               options={{
                 syncWithLocation: true,
@@ -48,6 +49,10 @@ function App() {
             >
               <Routes>
                 <Route index element={<WelcomePage />} />
+                <Route index element={<Home />} />
+                <Route path="/register" element={<Register />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/forgot-password" element={<ForgotPassword />} />
               </Routes>
               <RefineKbar />
               <UnsavedChangesNotifier />
